@@ -2,7 +2,7 @@ FROM python:3.12-alpine
 
 WORKDIR /opt/python-api
 
-COPY . .
+COPY main.py requirements.txt ./
 
 RUN python -m venv /opt/python-api/venv \
     && /opt/python-api/venv/bin/pip install --upgrade pip \

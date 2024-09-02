@@ -1,5 +1,32 @@
+name: ""
+
 services:
-  fastapi:
+  python-api:
     build: .
+    container_name: python-api
     ports:
       - "8000:80"
+    networks:
+      - mongodb-net
+    volumes:
+      - ./main.py:/opt/python-api/main.py
+      - ./requirements.txt:/opt/python-api/requirements.txt
+      - venv:/opt/python-api/venv
+
+
+  mongodb:
+    image: mongo:6.0.10-jammy
+    container_name: mongodb
+    networks:
+      - mongodb-net
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+networks:
+  mongodb-net:
+
+volumes:
+  mongodb_data:
+  venv:

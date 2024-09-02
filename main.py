@@ -1,9 +1,11 @@
-import uvicorn
 import datetime
 import logging
+import uuid
+import uvicorn
 
 from fastapi import FastAPI, status, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
+from pymongo import MongoClient
 
 app = FastAPI(
     title='Pruebas DevOps',
@@ -11,6 +13,9 @@ app = FastAPI(
     description='Una API sencilla para pruebas relacionadas con DevOps'
 )
 logger = logging.getLogger('uvicorn.error')
+client = MongoClient('mongodb://root:example@mongodb:27017/')
+db = client['python_app']
+collection = db['listas_no_ordenada']
 
 
 @app.get(path='/lista-ordenada',
@@ -60,6 +65,21 @@ def lista_ordenada() -> PlainTextResponse:
     """
     return PlainTextResponse(content="OK", 
                              status_code=status.HTTP_200_OK)
+
+
+@app.get(path='/guardar-lista-no-ordenada',
+         description="",
+         response_description="",
+         status_code=status.HTTP_200_OK
+         )
+def guardar_lista_no_ordenada(lista_no_ordenada:str = 
+                              Query(..., alias='lista-no-ordenada')) \
+-> JSONResponse:
+    """
+
+    :return:
+    """
+    return JSONResponse(content="hello",status_code=200)
 
 
 if __name__ == '__main__':
