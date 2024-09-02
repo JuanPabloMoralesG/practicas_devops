@@ -9,16 +9,28 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 
 app = FastAPI(
     title='Pruebas DevOps',
-    version='1.0.0'
+    version='1.0.0',
+    description='Una API sencilla para pruebas relacionadas con DevOps'
 )
 logger = logging.getLogger('uvicorn.error')
 
+
 @app.get(path='/lista-ordenada',
-         description="end pint para ordenar una lista",
-         response_description="un json con la fecha actual y la lista ordenada",
+         description="End point para ordenar una lista de enteros.",
+         response_description="Un JSON con la fecha actual y la lista ordenada.",
          status_code=status.HTTP_200_OK
          )
 def lista_ordenada(lista_no_ordenada: str) -> JSONResponse:
+    """
+    Ordena una lista de números enteros proporcionada en formato JSON.
+
+    :param lista_no_ordenada: Una cadena de texto que representa una lista de
+    números enteros en formato JSON. Ejemplo: `"[3, 1, 2]"`.
+    :return: - **200 OK**: Retorna un JSON con la hora actual del sistema y la
+    lista ordenada.
+    - **400 Bad Request**: Si la entrada no es una lista de enteros válida,
+        se devuelve un mensaje de error.
+    """
     try:    
         lista: List[int] = json.loads(lista_no_ordenada)
     except:
@@ -33,14 +45,23 @@ def lista_ordenada(lista_no_ordenada: str) -> JSONResponse:
 
 
 @app.get(path='/healthcheck',
-         description="end point para checkear el servicio",
-         response_description="texto plano con un OK",
+         description="End point para verificar el estado del servicio.",
+         response_description="Texto plano con un 'OK'.",
          status_code=status.HTTP_200_OK
          )
 def lista_ordenada() -> PlainTextResponse:
+    """
+    Verifica que el servicio esté funcionando correctamente.
+
+    :return:
+    - **200 OK**: Retorna un texto plano con el contenido "OK".
+    """
     return PlainTextResponse(content="OK", 
                              status_code=status.HTTP_200_OK)
 
 
 if __name__ == '__main__':
+    """
+    Punto de entrada principal para ejecutar la aplicación con Uvicorn.
+    """
     uvicorn.run(app, host="0.0.0.0", port=80)
