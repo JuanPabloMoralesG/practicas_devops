@@ -1,9 +1,12 @@
-import uvicorn
 import datetime
+import json
 import logging
+import uuid
+import uvicorn
 
 from fastapi import FastAPI, status, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
+from client import get_mongo
 
 app = FastAPI(
     title='Pruebas DevOps',
@@ -11,6 +14,7 @@ app = FastAPI(
     description='Una API sencilla para pruebas relacionadas con DevOps'
 )
 logger = logging.getLogger('uvicorn.error')
+
 
 
 @app.get(path='/lista-ordenada',
@@ -60,6 +64,45 @@ def lista_ordenada() -> PlainTextResponse:
     """
     return PlainTextResponse(content="OK", 
                              status_code=status.HTTP_200_OK)
+
+
+@app.get(path='/guardar-lista-no-ordenada',
+         description="Guarda una lista no ordenada en la base de datos con un UUID y la fecha actual.",
+         response_description="Un mensaje indicando si la lista fue guardada exitosamente o si hubo un error.",
+         status_code=status.HTTP_200_OK
+         )
+def guardar_lista_no_ordenada(lista_no_ordenada:str = 
+                              Query(..., alias='lista-no-ordenada')) \
+-> JSONResponse:
+    """
+    Guarda una lista no ordenada en una colección de MongoDB.
+
+    :param lista_no_ordenada: Una cadena JSON que representa una lista 
+    de enteros no ordenada.
+    :return: **JSONResponse**: Un JSON que contiene un mensaje indicando 
+    si la lista fue guardada correctamente y el UUID asignado, o un mensaje 
+    de error si la operación falló.
+    """
+    sta = status.HTTP_200_OK
+    collection = get_mongo()
+    id = uuid.uuid4()
+    lista: list[int] = json.loads(lista_no_ordenada)
+    dato_nuevo = {
+        "_id": str(id),
+        "fecha":str(datetime.datetime.now()),
+        "lista":lista
+    }
+    text = ""
+    try:
+        collection.insert_one(dato_nuevo)
+        text = f"La lista ordenada fue guardada con el id: {id}"
+    except Exception as e:
+        text = "Error guardanto la lista"
+        logger.error(e)
+        sta = status.HTTP_500_INTERNAL_SERVER_ERROR
+    
+    data = { "msg" : text }
+    return JSONResponse(content=data,status_code=sta)
 
 
 if __name__ == '__main__':
