@@ -33,6 +33,7 @@ services:
 
 networks:
   mongodb-net:
+    name: mongodb-net
 
 volumes:
   mongodb_data:
