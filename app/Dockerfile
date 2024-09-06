@@ -5,7 +5,7 @@ FROM python:3.12-alpine
 WORKDIR /opt/python-api
 
 # Copiamos los archivos necesarios al contenedor
-COPY main.py client.py requirements.txt ./
+COPY . .
 
 # Instalamos las dependencias dentro de un entorno virtual
 RUN python -m venv /opt/python-api/venv \

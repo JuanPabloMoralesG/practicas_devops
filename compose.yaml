@@ -1,25 +1,24 @@
-version: '3.8'
 name: ""
 
 services:
   python-api:
-    build: .
+    build: app/
     container_name: python-api
     ports:
       - "8000:80"
     networks:
       - mongodb-net
     volumes:
-      - ./main.py:/opt/python-api/main.py
-      - ./client.py:/opt/python-api/client.py
-      - ./requirements.txt:/opt/python-api/requirements.txt
+      - ./app/main.py:/opt/python-api/main.py
+      - ./app/client.py:/opt/python-api/client.py
+      - ./app/requirements.txt:/opt/python-api/requirements.txt
     environment:
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
 
 
   mongodb:
-    image: mongo:6.0.10-jammy
+    image: mvertes/alpine-mongo
     container_name: mongodb
     networks:
       - mongodb-net
