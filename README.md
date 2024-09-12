@@ -57,30 +57,23 @@ Las siguientes variables de entorno son utilizadas:
 
 ## Instrucciones de Uso
 
-### 1. Clonar el Repositorio
-
-```bash
-git clone <URL_del_repositorio>
-cd <nombre_del_repositorio>
-```
-
-### 2. Ejecutar el Proyecto con Docker Compose
+### 1. Ejecutar el Proyecto con Docker Compose
 ```bash
 docker compose up -d --build
 ```
 
 Esto levantará los contenedores necesarios (python-api y mongodb), creará las redes y volúmenes necesarios.
 
-### 3. Acceder a la API
+### 2. Acceder a la API
 La API estará disponible en http://localhost:8000.
 
-### 4. Verificar el Estado del Servicio
+### 3. Verificar el Estado del Servicio
 Para verificar que la API está corriendo correctamente, puedes acceder al endpoint de healthcheck:
 ```bash
 http://localhost:8000/healthcheck
 ```
 
-### 5. Volver a construir los Contenedores
+### 4. Volver a construir los Contenedores
 Para detener, eliminar y volver a crear los contenedores, volúmenes y la red puede usarse el script llamada:
 
 ```bash
@@ -112,7 +105,7 @@ docker run -d \
   -p 27017:27017 \
   -e MONGO_INITDB_ROOT_USERNAME=mongodb \
   -e MONGO_INITDB_ROOT_PASSWORD=mongodb \
-  mongo:6.0.10-jammy
+  mvertes/alpine-mongo
 ```
 
 ## 3. Construir la Imagen Docker para la Aplicación FastAPI
