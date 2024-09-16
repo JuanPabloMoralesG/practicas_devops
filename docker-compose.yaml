@@ -2,6 +2,21 @@ name: ""
 
 
 services:
+  mongodb:
+    image: mvertes/alpine-mongo
+    container_name: mongodb
+    hostname: mongodb
+    networks:
+      - mongodb-net
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    restart: always
+    profiles:
+      - app
+
+
   python-api:
     build:
       context: app/
@@ -24,25 +39,7 @@ services:
       - mongodb
     restart: always
     profiles:
-      - api
-
-
-  mongodb:
-    image: mvertes/alpine-mongo
-    container_name: mongodb
-    hostname: mongodb
-    networks:
-      - mongodb-net
-    volumes:
-      - mongo-data:/data/db
-    ports:
-      - "27017:27017"
-    restart: always
-    profile:
-      - mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongodb
-      MONGO_INITDB_ROOT_PASSWORD: mongodb
+      - app
 
 
 networks:

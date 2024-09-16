@@ -7,7 +7,7 @@ logger = logging.getLogger('uvicorn.error')
 MONGODB_HOST = os.getenv("MONGODB_HOST")
 MONGODB_PORT = os.getenv("MONGODB_PORT")
 
-url = f'mongodb://{MONGODB_HOST}:mongodb@mongodb:{MONGODB_PORT}/'
+url = f'mongodb://{MONGODB_HOST}:{MONGODB_PORT}/'
 
 def get_mongo():
     """

@@ -13,7 +13,13 @@ app = FastAPI(
     version='1.0.0',
     description='Una API sencilla para pruebas relacionadas con DevOps'
 )
-logger = logging.getLogger('uvicorn.error')
+logging.basicConfig(
+    filename="/opt/python-api/logs/info.log",  
+    level=logging.INFO, 
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", 
+)
+
+logger = logging.getLogger("fastapi_logger")
 
 
 
@@ -104,6 +110,12 @@ def guardar_lista_no_ordenada(lista_no_ordenada:str =
     data = { "msg" : text }
     return JSONResponse(content=data,status_code=sta)
 
+
+@app.get("/listar")
+def listar():
+    collection = get_mongo()
+    l = list(collection.find())
+    return l
 
 if __name__ == '__main__':
     """
