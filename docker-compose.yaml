@@ -1,38 +1,56 @@
 name: ""
 
+
 services:
   python-api:
-    build: app/
+    build:
+      context: app/
     container_name: python-api
-    ports:
-      - "8000:80"
+    hostname: python-api
     networks:
       - mongodb-net
+    environment:
+      - MONGODB_HOST=${MONGODB_HOST}
+      - MONGODB_PORT=${MONGODB_PORT}
+      - TZ=${TZ}
     volumes:
+      - ./volumes/logs/info.log:/opt/python-api/logs/info.log
       - ./app/main.py:/opt/python-api/main.py
       - ./app/client.py:/opt/python-api/client.py
       - ./app/requirements.txt:/opt/python-api/requirements.txt
-    environment:
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
+    ports:
+      - "8000:80"
+    depends_on:
+      - mongodb
+    restart: always
+    profiles:
+      - api
 
 
   mongodb:
     image: mvertes/alpine-mongo
     container_name: mongodb
+    hostname: mongodb
     networks:
       - mongodb-net
     volumes:
-      - mongodb_data:/data/db
+      - mongo-data:/data/db
     ports:
       - "27017:27017"
+    restart: always
+    profile:
+      - mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongodb
       MONGO_INITDB_ROOT_PASSWORD: mongodb
 
+
 networks:
   mongodb-net:
     name: mongodb-net
+    driver: bridge
+
 
 volumes:
-  mongodb_data:
+  mongo_data:
+    driver: local
