@@ -6,15 +6,9 @@ Este proyecto es una API sencilla desarrollada con FastAPI que realiza operacion
 
 - **`main.py`**: Contiene el código principal de la API.
 - **`Dockerfile`**: Define la imagen Docker para el servicio de FastAPI.
-- **`compose.yaml`**: Archivo de configuración de Docker Compose que orquesta los servicios.
+- **`docker-compose.yaml`**: Archivo de configuración de Docker Compose que orquesta los servicios.
 - **`client.py`**: Contiene la lógica de conexión a MongoDB.
 - **`run.sh`**: Script para gestionar el ciclo de vida del contenedor (detener, eliminar y reconstruir los servicios).
-
-## Requisitos Previos
-
-- Docker
-- Docker Compose
-- Python 3.12
 
 ## Configuración
 
@@ -26,8 +20,9 @@ El proyecto está configurado para ejecutarse dentro de contenedores Docker usan
 
 Las siguientes variables de entorno son utilizadas:
 
-- `MONGODB_HOST`: Nombre del host de MongoDB (definido en `compose.yaml`).
+- `MONGODB_HOST`: Nombre del host de MongoDB.
 - `MONGODB_PORT`: Puerto en el que se ejecuta MongoDB.
+- `TZ`: Zona horaria que se le asociara al contenedor de la aplicacion.
 
 ## Endpoints de la API
 
@@ -59,7 +54,7 @@ Las siguientes variables de entorno son utilizadas:
 
 ### 1. Ejecutar el Proyecto con Docker Compose
 ```bash
-docker compose up -d --build
+docker compose up -d --build [nombre del servicio]
 ```
 
 Esto levantará los contenedores necesarios (python-api y mongodb), creará las redes y volúmenes necesarios.
@@ -73,18 +68,7 @@ Para verificar que la API está corriendo correctamente, puedes acceder al endpo
 http://localhost:8000/healthcheck
 ```
 
-### 4. Volver a construir los Contenedores
-Para detener, eliminar y volver a crear los contenedores, volúmenes y la red puede usarse el script llamada:
-
-```bash
-./run.sh
-```
-### Notas Adicionales
-- La API es expuesta en el puerto 8000 en el host.
-- MongoDB expone el puerto 27017 para permitir conexiones externas.
-- El archivo requirements.txt debe contener todas las dependencias de Python necesarias para la aplicación.
-
-# Ejecutar el Proyecto Usando Contenedores y Redes de Docker (Sin Docker Compose)
+# Ejecutar el Proyecto Usando Contenedores, Redes de Docker y Volumenes (Sin Docker Compose)
 
 Este documento detalla los pasos para ejecutar el proyecto utilizando contenedores y redes de Docker, sin depender de `docker-compose`.
 
@@ -92,57 +76,87 @@ Este documento detalla los pasos para ejecutar el proyecto utilizando contenedor
 
 Primero, crea una red de Docker para que los contenedores puedan comunicarse entre sí.
 
-```bash
-docker network create mongodb-net
 ```
-## 2. Iniciar el Contenedor de MongoDB
+docker network create --driver bridge mongodb-net
+```
+
+## 2. Crear el volumen mongo_data
+Docker necesita un volumen para persistir los datos de MongoDB. Crea el volumen manualmente con:
+```
+docker volume create --name mongo_data
+```
+
+## 3. Iniciar el Contenedor de MongoDB
 Ahora, inicia un contenedor de MongoDB en la red que acabas de crear.
 
-```bash
+```
 docker run -d \
   --name mongodb \
+  --hostname mongodb \
   --network mongodb-net \
+  -v mongo_data:/data/db \
   -p 27017:27017 \
-  -e MONGO_INITDB_ROOT_USERNAME=mongodb \
-  -e MONGO_INITDB_ROOT_PASSWORD=mongodb \
+  --restart always \
   mvertes/alpine-mongo
 ```
 
-## 3. Construir la Imagen Docker para la Aplicación FastAPI
-A continuación, construye la imagen Docker para tu aplicación FastAPI.
+## 4. Construir la Imagen Docker para la Aplicación FastAPI
+Primero, debes navegar al directorio app/, que contiene el código fuente y el archivo Dockerfile. Luego, ejecuta el siguiente comando para construir la imagen:
 
-```bash
-docker build -t python-api .
 ```
-## 4. Iniciar el Contenedor de la Aplicación FastAPI
-Después de construir la imagen, inicia un contenedor basado en ella y conéctalo a la red mongodb-net.
-
-```bash
+docker build -t python-api ./app/
+```
+## 5. Ejecutar el contenedor de la API Python
+Una vez que la imagen está construida, puedes ejecutar el contenedor de la API Python. Asegúrate de que las variables de entorno necesarias (MONGODB_HOST, MONGODB_PORT, TZ) estén configuradas.
+```
 docker run -d \
   --name python-api \
+  --hostname python-api \
   --network mongodb-net \
+  -e MONGODB_HOST=${MONGODB_HOST} \
+  -e MONGODB_PORT=${MONGODB_PORT} \
+  -e TZ=${TZ} \
+  -v $(pwd)/volumes/logs/info.log:/opt/python-api/logs/info.log \
+  -v $(pwd)/app/main.py:/opt/python-api/main.py \
+  -v $(pwd)/app/client.py:/opt/python-api/client.py \
+  -v $(pwd)/app/requirements.txt:/opt/python-api/requirements.txt \
   -p 8000:80 \
-  -e MONGODB_HOST=mongodb \
-  -e MONGODB_PORT=27017 \
+  --restart always \
   python-api
-  ```
+
+```
 
 ## 6. Gestionar Contenedores y Red
+### Verificar la ejecución de los contenedores
+Puedes verificar que los contenedores estén corriendo usando el siguiente comando:
+```
+docker ps
+```
+### Ver los logs de los contenedores:
+Para ver los logs de un contenedor, puedes usar:
+```
+docker logs python-api
+docker logs -f python-api
+```
+
 ### Parar los Contenedores
 Para detener los contenedores, utiliza los siguientes comandos:
-
-```bash
+```
 docker stop python-api mongodb
 ```
+
 ### Eliminar los Contenedores
 Para eliminar los contenedores después de detenerlos:
-
-```bash
+```
 docker rm python-api mongodb
+```
+### Eliminar los volumenes
+Para eliminar los volumenes después de detener los contenedores:
+```
+docker volume rm mongo_data
 ```
 ### Eliminar la Red
 Si deseas eliminar la red de Docker después de haber eliminado los contenedores:
-
-```bash
+```
 docker network rm mongodb-net
 ```
