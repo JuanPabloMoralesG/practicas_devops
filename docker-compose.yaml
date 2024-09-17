@@ -11,7 +11,7 @@ services:
       - "27017:27017"  # Exposición del puerto MongoDB para conexiones externas
     restart: always  # Reinicia siempre el contenedor si falla
     profiles:
-      - Dev  # Perfil de ejecución específico, útil para entornos diferentes
+      - dev  # Perfil de ejecución específico, útil para entornos diferentes
 
   python-api:
     build:
@@ -35,7 +35,7 @@ services:
       - mongodb  # Espera a que MongoDB esté listo antes de iniciar
     restart: always  # Reinicia siempre si falla
     profiles:
-      - Dev  # Perfil de ejecución específico
+      - dev  # Perfil de ejecución específico
 
 networks:
   mongodb-net:
