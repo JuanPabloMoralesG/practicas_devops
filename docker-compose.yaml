@@ -1,6 +1,3 @@
-name: ""
-
-
 services:
   mongodb:
     image: mvertes/alpine-mongo
@@ -9,7 +6,7 @@ services:
     networks:
       - mongodb-net
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
     ports:
       - "27017:27017"
     restart: always
@@ -51,3 +48,4 @@ networks:
 volumes:
   mongo_data:
     driver: local
+    

@@ -4,9 +4,10 @@ import logging
 import uuid
 import uvicorn
 
+from client import get_mongo
 from fastapi import FastAPI, status, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
-from client import get_mongo
+
 
 app = FastAPI(
     title='Pruebas DevOps',
@@ -14,9 +15,9 @@ app = FastAPI(
     description='Una API sencilla para pruebas relacionadas con DevOps'
 )
 logging.basicConfig(
-    filename="/opt/python-api/logs/info.log",  
-    level=logging.INFO, 
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", 
+    filename="/opt/python-api/logs/info.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
 logger = logging.getLogger("fastapi_logger")
@@ -47,7 +48,7 @@ def lista_ordenada(lista_no_ordenada: str =
         lista = sorted(lista_no_ordenada)
     except:
         logger.error("No se ingreso una lista de enteros en formato de texto")
-        return JSONResponse("Error al convertir la entrada en una lista", 
+        return JSONResponse("Error al convertir la entrada en una lista",
                             status_code=status.HTTP_400_BAD_REQUEST)
     data = {
         "hora_sistema": str(datetime.datetime.now()),
@@ -68,7 +69,7 @@ def lista_ordenada() -> PlainTextResponse:
     :return:
     - **200 OK**: Retorna un texto plano con el contenido "OK".
     """
-    return PlainTextResponse(content="OK", 
+    return PlainTextResponse(content="OK",
                              status_code=status.HTTP_200_OK)
 
 
@@ -77,16 +78,16 @@ def lista_ordenada() -> PlainTextResponse:
          response_description="Un mensaje indicando si la lista fue guardada exitosamente o si hubo un error.",
          status_code=status.HTTP_200_OK
          )
-def guardar_lista_no_ordenada(lista_no_ordenada:str = 
+def guardar_lista_no_ordenada(lista_no_ordenada:str =
                               Query(..., alias='lista-no-ordenada')) \
 -> JSONResponse:
     """
     Guarda una lista no ordenada en una colección de MongoDB.
 
-    :param lista_no_ordenada: Una cadena JSON que representa una lista 
+    :param lista_no_ordenada: Una cadena JSON que representa una lista
     de enteros no ordenada.
-    :return: **JSONResponse**: Un JSON que contiene un mensaje indicando 
-    si la lista fue guardada correctamente y el UUID asignado, o un mensaje 
+    :return: **JSONResponse**: Un JSON que contiene un mensaje indicando
+    si la lista fue guardada correctamente y el UUID asignado, o un mensaje
     de error si la operación falló.
     """
     sta = status.HTTP_200_OK
@@ -106,16 +107,10 @@ def guardar_lista_no_ordenada(lista_no_ordenada:str =
         text = "Error guardanto la lista"
         logger.error(e)
         sta = status.HTTP_500_INTERNAL_SERVER_ERROR
-    
+
     data = { "msg" : text }
     return JSONResponse(content=data,status_code=sta)
 
-
-@app.get("/listar")
-def listar():
-    collection = get_mongo()
-    l = list(collection.find())
-    return l
 
 if __name__ == '__main__':
     """
