@@ -1,5 +1,5 @@
-# Detener y eliminar el contenedor y las imágenes del servicio
-docker compose down --rmi all --volumes --remove-orphans
+docker-compose down python-api
+docker-compose down mongodb
 
-# Volver a crear y levantar los servicios
-docker compose -p "" up -d --build
+docker-compose up --build -d mongodb
+docker-compose up --build -d python-api
