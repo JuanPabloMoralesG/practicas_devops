@@ -53,8 +53,9 @@ Las siguientes variables de entorno son utilizadas:
 ## Instrucciones de Uso
 
 ### 1. Ejecutar el Proyecto con Docker Compose
-```bash
-docker compose up -d --build [nombre del servicio]
+```
+docker-compose up -d --build [nombre del servicio]
+docker-compose --profile back up #para los servicios asociados a este perfil
 ```
 
 Esto levantará los contenedores necesarios (python-api y mongodb), creará las redes y volúmenes necesarios.
@@ -64,10 +65,15 @@ La API estará disponible en http://localhost:8000.
 
 ### 3. Verificar el Estado del Servicio
 Para verificar que la API está corriendo correctamente, puedes acceder al endpoint de healthcheck:
-```bash
+```
 http://localhost:8000/healthcheck
 ```
-
+### 4. Detener los servicios
+Para detener y elimindar la informacion creada por el docker compose se usan los comandos:
+```
+docker-compose down [nombre del servicio]
+docker-compose --profile back down
+```
 # Ejecutar el Proyecto Usando Contenedores, Redes de Docker y Volumenes (Sin Docker Compose)
 
 Este documento detalla los pasos para ejecutar el proyecto utilizando contenedores y redes de Docker, sin depender de `docker-compose`.
