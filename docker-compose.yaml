@@ -11,7 +11,7 @@ services:
       - "27017:27017"  # Exposición del puerto MongoDB para conexiones externas
     restart: always  # Reinicia siempre el contenedor si falla
     profiles:
-      - api  # Perfil de ejecución específico, útil para entornos diferentes
+      - db  # Perfil de ejecución específico, útil para entornos diferentes
       - back
 
   python-api:
@@ -22,11 +22,11 @@ services:
     networks:
       - mongodb-net  # Conecta el contenedor a la misma red que MongoDB
     environment:
-      - MONGODB_HOST=${MONGODB_HOST}  # Variables de entorno para configurar MongoDB
-      - MONGODB_PORT=${MONGODB_PORT}
-      - TZ=${TZ}  # Zona horaria
+      - MONGODB_HOST  # Variables de entorno para configurar MongoDB
+      - MONGODB_PORT
+      - TZ  # Zona horaria
     volumes:
-      - ./volumes/logs/info.log:/opt/python-api/logs/info.log  # Mapea logs a un archivo local
+      - ./volumes/logs/info.log:/opt/python-api/logs/info.log
       - ./app/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
       - ./app/client.py:/opt/python-api/client.py
       - ./app/requirements.txt:/opt/python-api/requirements.txt
