@@ -16,7 +16,7 @@ services:
 
   python-api:
     build:
-      context: app/  # Contexto de construcción desde el directorio 'app'
+      context: python-api/  # Contexto de construcción desde el directorio 'app'
     container_name: python-api  # Nombre del contenedor
     hostname: python-api  # Nombre de host dentro de la red de Docker
     networks:
@@ -27,9 +27,9 @@ services:
       - TZ  # Zona horaria
     volumes:
       - ./volumes/logs/info.log:/opt/python-api/logs/info.log
-      - ./app/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
-      - ./app/client.py:/opt/python-api/client.py
-      - ./app/requirements.txt:/opt/python-api/requirements.txt
+      - ./python-api/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
+      - ./python-api/client.py:/opt/python-api/client.py
+      - ./python-api/requirements.txt:/opt/python-api/requirements.txt
     ports:
       - "8000:80"  # Expone el puerto 8000 externamente
     depends_on:
@@ -38,6 +38,29 @@ services:
     profiles:
       - api  # Perfil de ejecución específico
       - back
+
+  api-monitor:
+    build:
+      context: api-monitor/
+    container_name: api-monitor
+    hostname: api-monitor
+    networks:
+      - mongodb-net
+    environment:
+      - CHECK_INTERVAL
+      - TARGET_CONTAINER_HOST
+      - TARGET_CONTAINER_PORT
+      - TZ
+    volumes:
+      - ./volumes/logs/api-monitor.log:/opt/monitor/logs
+    depends_on:
+     - python-api
+    ports:
+      - "8001:80"
+    restart: always
+    profiles:
+      - back
+      - monitor
 
 networks:
   mongodb-net:
