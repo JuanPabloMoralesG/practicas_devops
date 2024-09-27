@@ -52,7 +52,7 @@ services:
       - TARGET_CONTAINER_PORT
       - TZ
     volumes:
-      - ./volumes/logs/api-monitor.log:/opt/monitor/logs/api-monitor.log
+      - ./volumes/logs/api-monitor.log:/opt/monitor/logs
     depends_on:
      - python-api
     ports:

@@ -11,7 +11,7 @@ HEALTHCHECK_ENDPOINT = f'http://{TARGET_CONTAINER_HOST}:{TARGET_CONTAINER_PORT}/
 
 # Configuración del logging
 logging.basicConfig(
-    filename='logs/api-monitor.log',
+    filename='api-monitor.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
@@ -23,10 +23,13 @@ def check_health():
         response = requests.get(HEALTHCHECK_ENDPOINT, timeout=5)
         if response.status_code == 200 and response.text.strip() == 'OK':
             logging.info(f'Healthcheck passed: {response.status_code} - {response.text}')
+            print(f'Healthcheck passed: {response.status_code} - {response.text}')
         else:
             logging.error(f'Healthcheck failed: {response.status_code} - {response.text}')
+            print(f'Healthcheck failed: {response.status_code} - {response.text}')
     except requests.exceptions.RequestException as e:
         logging.error(f'Healthcheck request failed: {str(e)}')
+        print(f'Healthcheck request failed: {str(e)}')
 
 if __name__ == "__main__":
     while True:
