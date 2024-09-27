@@ -1,0 +1,49 @@
+services:
+  mongodb:
+    image: mvertes/alpine-mongo  # Imagen ligera de MongoDB basada en Alpine Linux
+    container_name: mongodb  # Nombre del contenedor
+    hostname: mongodb  # Nombre de host dentro de la red de Docker
+    networks:
+      - mongodb-net  # Conecta el contenedor a la red 'mongodb-net'
+    volumes:
+      - mongo_data:/data/db  # Volumen para persistir los datos de MongoDB
+    ports:
+      - "27017:27017"  # Exposición del puerto MongoDB para conexiones externas
+    restart: always  # Reinicia siempre el contenedor si falla
+    profiles:
+      - db  # Perfil de ejecución específico, útil para entornos diferentes
+      - back
+
+  python-api:
+    build:
+      context: app/  # Contexto de construcción desde el directorio 'app'
+    container_name: python-api  # Nombre del contenedor
+    hostname: python-api  # Nombre de host dentro de la red de Docker
+    networks:
+      - mongodb-net  # Conecta el contenedor a la misma red que MongoDB
+    environment:
+      - MONGODB_HOST  # Variables de entorno para configurar MongoDB
+      - MONGODB_PORT
+      - TZ  # Zona horaria
+    volumes:
+      - ./volumes/logs/info.log:/opt/python-api/logs/info.log
+      - ./app/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
+      - ./app/client.py:/opt/python-api/client.py
+      - ./app/requirements.txt:/opt/python-api/requirements.txt
+    ports:
+      - "8000:80"  # Expone el puerto 8000 externamente
+    depends_on:
+      - mongodb  # Espera a que MongoDB esté listo antes de iniciar
+    restart: always  # Reinicia siempre si falla
+    profiles:
+      - api  # Perfil de ejecución específico
+      - back
+
+networks:
+  mongodb-net:
+    name: mongodb-net  # Define una red 'bridge' personalizada
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local  # Volumen local para almacenar los datos de MongoDB
