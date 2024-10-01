@@ -22,14 +22,24 @@ def check_health():
     try:
         response = requests.get(HEALTHCHECK_ENDPOINT, timeout=5)
         if response.status_code == 200 and response.text.strip() == 'OK':
-            logging.info(f'Healthcheck passed: {response.status_code} - {response.text}')
-            print(f'Healthcheck passed: {response.status_code} - {response.text}')
+            logging.info(f' Se hizo la solicitud al endpoint 
+                         http://api-container:8000/healthcheck y devolvió {response.text}')
+            print(f' Se hizo la solicitud al endpoint 
+                  http://api-container:8000/healthcheck y devolvió {response.text}')
         else:
-            logging.error(f'Healthcheck failed: {response.status_code} - {response.text}')
-            print(f'Healthcheck failed: {response.status_code} - {response.text}')
+            logging.error(f'Se hizo la solicitud al endpoint 
+                         http://api-container:8000/healthcheck y devolvió error:
+                          Código de estado: {response.status_code}, Respuesta: {response.text}')
+            print(f'Se hizo la solicitud al endpoint 
+                  http://api-container:8000/healthcheck y devolvió error:
+                  Código de estado: {response.status_code}, Respuesta: {response.text}')
     except requests.exceptions.RequestException as e:
-        logging.error(f'Healthcheck request failed: {str(e)}')
-        print(f'Healthcheck request failed: {str(e)}')
+        logging.error(f'Fallo la solicitud al endpoint 
+                      http://api-container:8000/healthcheck y devolvió error:
+                      Respuesta: {str(e)}')
+        print(f'Fallo la solicitud al endpoint 
+              http://api-container:8000/healthcheck y devolvió error:
+              Respuesta: {str(e)}')
 
 if __name__ == "__main__":
     while True:
