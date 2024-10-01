@@ -42,6 +42,7 @@ services:
   api-monitor:
     build:
       context: api-monitor/
+      dockerfile: Dockerfile.monitor
     container_name: api-monitor
     hostname: api-monitor
     networks:
