@@ -15,13 +15,10 @@ app = FastAPI(
     description='Una API sencilla para pruebas relacionadas con DevOps'
 )
 logging.basicConfig(
-    filename="/opt/python-api/logs/info.log",
+    filename="./logs/info.log",
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-
-logger = logging.getLogger("fastapi_logger")
-
 
 
 @app.get(path='/lista-ordenada',
@@ -47,7 +44,7 @@ def lista_ordenada(lista_no_ordenada: str =
         lista_no_ordenada = [int(i) for i in lista_no_ordenada]
         lista = sorted(lista_no_ordenada)
     except:
-        logger.error("No se ingreso una lista de enteros en formato de texto")
+        logging.error("No se ingreso una lista de enteros en formato de texto")
         return JSONResponse("Error al convertir la entrada en una lista",
                             status_code=status.HTTP_400_BAD_REQUEST)
     data = {
@@ -105,7 +102,7 @@ def guardar_lista_no_ordenada(lista_no_ordenada:str =
         text = f"La lista ordenada fue guardada con el id: {id}"
     except Exception as e:
         text = "Error guardanto la lista"
-        logger.error(e)
+        logging.error(e)
         sta = status.HTTP_500_INTERNAL_SERVER_ERROR
 
     data = { "msg" : text }
