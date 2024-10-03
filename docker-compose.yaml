@@ -50,24 +50,25 @@ services:
     networks:
       - mongodb-net
     environment:
-      - CHECK_INTERVAL
-      - TARGET_CONTAINER_HOST
-      - TARGET_CONTAINER_PORT
-      - TZ
+      - CHECK_INTERVAL               # Intervalo de tiempo entre cada verificación.
+      - TARGET_CONTAINER_HOST        # Nombre del host del contenedor objetivo.
+      - TARGET_CONTAINER_PORT        # Puerto del contenedor objetivo.
+      - TZ                           # Zona horaria del contenedor.
     volumes:
       - ./volumes/logs/api-monitor.log:/opt/api-monitor/logs/api-monitor.log
+       # Monta el archivo de log desde el host hacia el contenedor.
     depends_on:
-     - python-api
+     - python-api    # Indica que este servicio depende de 'python-api'.
     ports:
       - "8001:80"
-    restart: always
+    restart: always  # Reinicia el contenedor automáticamente en caso de fallo.
     profiles:
       - back
       - monitor
 
 networks:
   mongodb-net:
-    name: mongodb-net  # Define una red 'bridge' personalizada
+    name: mongodb-net  # Define una red
     driver: bridge
 
 volumes:

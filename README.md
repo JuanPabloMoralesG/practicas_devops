@@ -2,14 +2,6 @@
 
 Este proyecto es una API sencilla desarrollada con FastAPI que realiza operaciones básicas relacionadas con listas de enteros y su almacenamiento en una base de datos MongoDB. Es ideal para realizar pruebas y demostraciones relacionadas con el desarrollo y despliegue de aplicaciones.
 
-## Estructura del Proyecto
-
-- **`main.py`**: Contiene el código principal de la API.
-- **`Dockerfile`**: Define la imagen Docker para el servicio de FastAPI.
-- **`docker-compose.yaml`**: Archivo de configuración de Docker Compose que orquesta los servicios.
-- **`client.py`**: Contiene la lógica de conexión a MongoDB.
-- **`run.sh`**: Script para gestionar el ciclo de vida del contenedor (detener, eliminar y reconstruir los servicios).
-
 ## Configuración
 
 ### Docker
@@ -20,6 +12,9 @@ El proyecto está configurado para ejecutarse dentro de contenedores Docker usan
 
 Las siguientes variables de entorno son utilizadas:
 
+- `CHECK_INTERVAL`: Intervalo en segundos entre cada intento de verificación del estado del api.
+- `TARGET_CONTAINER_HOST`: Nombre del host del contenedor objetivo al que la aplicación se conectará.
+- `TARGET_CONTAINER_PORT`: Puerto del contenedor objetivo al que la aplicación intentará conectarse.
 - `MONGODB_HOST`: Nombre del host de MongoDB.
 - `MONGODB_PORT`: Puerto en el que se ejecuta MongoDB.
 - `TZ`: Zona horaria que se le asociara al contenedor de la aplicacion.
@@ -54,11 +49,10 @@ Las siguientes variables de entorno son utilizadas:
 
 ### 1. Ejecutar el Proyecto con Docker Compose
 ```
-docker-compose up -d --build [nombre del servicio]
-docker-compose --profile back up #para los servicios asociados a este perfil
+docker-compose --profile [nombre servicio] up 
 ```
 
-Esto levantará los contenedores necesarios (python-api y mongodb), creará las redes y volúmenes necesarios.
+Usar el profile 'back' levantará los contenedores necesarios, creará las redes y volúmenes actualmente desarrollados
 
 ### 2. Acceder a la API
 La API estará disponible en http://localhost:8000.
@@ -71,8 +65,7 @@ http://localhost:8000/healthcheck
 ### 4. Detener los servicios
 Para detener y elimindar la informacion creada por el docker compose se usan los comandos:
 ```
-docker-compose down [nombre del servicio]
-docker-compose --profile back down
+docker compose --profile back down
 ```
 # Ejecutar el Proyecto Usando Contenedores, Redes de Docker y Volumenes (Sin Docker Compose)
 
@@ -132,7 +125,34 @@ docker run -d \
 
 ```
 
-## 6. Gestionar Contenedores y Red
+## 6. Construir la Imagen Docker para la Aplicación de Monitoreo
+Primero, debes navegar al directorio donde se encuentra el archivo Dockerfile. Luego, ejecuta el siguiente comando para construir la imagen:
+
+```
+docker build -t api-monitor .
+```
+Este comando construirá una imagen llamada api-monitor basada en el archivo Dockerfile del directorio actual.
+
+## 7. Ejecutar el Contenedor de la Aplicación de Monitoreo
+Una vez que la imagen esté construida, puedes ejecutar el contenedor de la aplicación. Asegúrate de que las variables de entorno necesarias (MONGODB_HOST, MONGODB_PORT, TZ) estén configuradas.
+
+```
+docker run -d \
+  --name api-monitor \
+  --hostname api-monitor \
+  --network <nombre-red> \
+  -e MONGODB_HOST=${MONGODB_HOST} \
+  -e MONGODB_PORT=${MONGODB_PORT} \
+  -e TZ=${TZ} \
+  -v $(pwd)/logs:/opt/api-monitor/logs \
+  -v $(pwd)/monitoreo_script.py:/opt/api-monitor/monitoreo_script.py \
+  -v $(pwd)/requirements.txt:/opt/api-monitor/requirements.txt \
+  -p 8000:80 \
+  --restart always \
+  api-monitor
+  ```
+
+## 8. Gestionar Contenedores y Red
 ### Verificar la ejecución de los contenedores
 Puedes verificar que los contenedores estén corriendo usando el siguiente comando:
 ```
@@ -141,20 +161,20 @@ docker ps
 ### Ver los logs de los contenedores:
 Para ver los logs de un contenedor, puedes usar:
 ```
-docker logs python-api
-docker logs -f python-api
+docker logs [nombre contenedor]
+docker logs -f [nombre contenedor]
 ```
 
 ### Parar los Contenedores
 Para detener los contenedores, utiliza los siguientes comandos:
 ```
-docker stop python-api mongodb
+docker stop [nombre contenedor]
 ```
 
 ### Eliminar los Contenedores
 Para eliminar los contenedores después de detenerlos:
 ```
-docker rm python-api mongodb
+docker rm [nombre contenedor]
 ```
 ### Eliminar los volumenes
 Para eliminar los volumenes después de detener los contenedores:
