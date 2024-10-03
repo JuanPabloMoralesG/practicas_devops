@@ -11,7 +11,7 @@ HEALTHCHECK_ENDPOINT = f'http://{TARGET_CONTAINER_HOST}:{TARGET_CONTAINER_PORT}/
 
 # Configuración del logging
 logging.basicConfig(
-    filename='api-monitor.log',
+    filename='logs/api-monitor.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
