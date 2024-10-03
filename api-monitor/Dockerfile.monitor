@@ -1,13 +1,19 @@
+# Usa la imagen oficial de Python 3.12.
 FROM python:3.12-slim
 
+# Define el directorio de trabajo.
 WORKDIR /opt/api-monitor
 
+# Copia todos los archivos del directorio actual al directorio de trabajo.
 COPY . .
 
+# Crea un entorno virtual de Python en el directorio e instala las dependencias listadas en `requirements.txt`.
 RUN python -m venv /opt/api-monitor/venv \
     && /opt/api-monitor/venv/bin/pip install --upgrade pip \
     && /opt/api-monitor/venv/bin/pip install -r requirements.txt
 
+# Expone el puerto 80.
 EXPOSE 80
 
+# Comando que se ejecuta cuando el contenedor inicia.
 CMD ["/opt/api-monitor/venv/bin/python", "monitoreo_script.py"]
