@@ -15,6 +15,7 @@ services:
       - back
 
   python-api:
+    image: python-api
     build:
       context: python-api/  # Contexto de construcción desde el directorio 'app'
     container_name: python-api  # Nombre del contenedor
@@ -40,8 +41,10 @@ services:
       - back
 
   api-monitor:
+    image: api-monitor
     build:
       context: api-monitor/
+      dockerfile: Dockerfile.monitor
     container_name: api-monitor
     hostname: api-monitor
     networks:
@@ -52,7 +55,7 @@ services:
       - TARGET_CONTAINER_PORT
       - TZ
     volumes:
-      - ./volumes/logs/api-monitor.log:/opt/monitor/logs
+      - ./volumes/logs/api-monitor.log:/opt/api-monitor/logs/api-monitor.log
     depends_on:
      - python-api
     ports:
