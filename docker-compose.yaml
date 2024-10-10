@@ -15,8 +15,9 @@ services:
       - back
 
   python-api:
+    image: python-api
     build:
-      context: app/  # Contexto de construcción desde el directorio 'app'
+      context: python-api/  # Contexto de construcción desde el directorio 'app'
     container_name: python-api  # Nombre del contenedor
     hostname: python-api  # Nombre de host dentro de la red de Docker
     networks:
@@ -27,9 +28,9 @@ services:
       - TZ  # Zona horaria
     volumes:
       - ./volumes/logs/info.log:/opt/python-api/logs/info.log
-      - ./app/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
-      - ./app/client.py:/opt/python-api/client.py
-      - ./app/requirements.txt:/opt/python-api/requirements.txt
+      - ./python-api/main.py:/opt/python-api/main.py  # Mapea el código fuente de la API
+      - ./python-api/client.py:/opt/python-api/client.py
+      - ./python-api/requirements.txt:/opt/python-api/requirements.txt
     ports:
       - "8000:80"  # Expone el puerto 8000 externamente
     depends_on:
@@ -39,9 +40,35 @@ services:
       - api  # Perfil de ejecución específico
       - back
 
+  api-monitor:
+    image: api-monitor
+    build:
+      context: api-monitor/
+      dockerfile: Dockerfile.monitor
+    container_name: api-monitor
+    hostname: api-monitor
+    networks:
+      - mongodb-net
+    environment:
+      - CHECK_INTERVAL               # Intervalo de tiempo entre cada verificación.
+      - TARGET_CONTAINER_HOST        # Nombre del host del contenedor objetivo.
+      - TARGET_CONTAINER_PORT        # Puerto del contenedor objetivo.
+      - TZ                           # Zona horaria del contenedor.
+    volumes:
+      - ./volumes/logs/api-monitor.log:/opt/api-monitor/logs/api-monitor.log
+       # Monta el archivo de log desde el host hacia el contenedor.
+    depends_on:
+     - python-api    # Indica que este servicio depende de 'python-api'.
+    ports:
+      - "8001:80"
+    restart: always  # Reinicia el contenedor automáticamente en caso de fallo.
+    profiles:
+      - back
+      - monitor
+
 networks:
   mongodb-net:
-    name: mongodb-net  # Define una red 'bridge' personalizada
+    name: mongodb-net  # Define una red
     driver: bridge
 
 volumes:
